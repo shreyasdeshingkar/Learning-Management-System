@@ -15,22 +15,22 @@
             <%- include ('header.ejs') %>
             <div class="py-4 flex flex-col ml-6 mr-6 mt-3">
                 <div class="py-2 border-b-2 m-2" style="display: flex; justify-content: space-between;">
-                    <h1 class="text-black-600 text-xl font-semibold">Welcome, <br> Student: <%= currentUser.firstName %> <%= currentUser.lastName %> </h1>
+                    <h1 class="text-black-900 text-xl font-semibold">Welcome, <br> Student: <%= currentUser.firstName %> <%= currentUser.lastName %> </h1>
                     <a href="/signout" class="text-green-600 text-xl font-semibold">Signout</a>
                 </div>
                 <div class="border-b-2 m-1">
-                    <h1 class="text-xl font-bold text-blue-600 m-1">
+                    <h1 class="text-xl font-bold text-orange-600 m-1">
                         Find Your Strength ; Your Learning Adventure Begins From here!!!
                     </h1>
-                    <p class="text-medium text-gray-700 m-3">
+                    <p class="text-medium text-gray-900 m-3">
                         Lets learn together! ; You are braver than you believe, stronger than you seem and smarter than you think
                     </p>                
                 </div>
-                <div class="m-2 flex flex-row justify-evenly bg-yellow-100">
-                    <a href="/MyCourses" class="bg-blue-600 text-white px-5 py-2 rounded font-medium hover:bg-blue-700 text-center block">
+                <div class="m-2 flex flex-row justify-evenly bg-purple-100">
+                    <a href="/MyCourses" class="bg-orange-600 text-white px-5 py-2 rounded font-medium hover:bg-orange-700 text-center block">
                         My Enrolled Courses
                     </a>
-                    <a href="/changePassword" class="bg-red-600 text-white px-5 py-2 rounded font-medium hover:bg-red-700 text-center block">
+                    <a href="/changePassword" class="bg-blue-600 text-white px-5 py-2 rounded font-medium hover:bg-blue-700 text-center block">
                         Change Password
                     </a>
                 </div>

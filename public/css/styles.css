@@ -1,0 +1,203 @@
+/* index.ejs */
+body,
+html {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
+
+/* Login container */
+
+.login-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #f2f2f2;
+}
+
+.login-ask {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.login-ask h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.login-ask h4 {
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+  font-style: italic;
+}
+
+.login-ask p {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.login-ask a {
+  text-decoration: none;
+  color: #007bff;
+  font-weight: bold;
+}
+
+
+/* student dashboard */
+
+body,
+html {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
+
+/* Layout */
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  grid-gap: 2rem;
+}
+
+.col-start-2 {
+  grid-column: 2 / span 2;
+}
+
+/* Header */
+
+.header {
+  background-color: #f2f2f2;
+  padding: 1rem;
+}
+
+.header h1 {
+  font-size: 2rem;
+  text-align: center;
+}
+
+/* Welcome section */
+
+.welcome-section {
+  padding: 2rem;
+  border: 1px solid #ccc;
+}
+
+.welcome-section h1 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.welcome-section p {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* Action buttons */
+
+.action-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2rem;
+}
+
+.action-button {
+  background-color: #007bff;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.action-button:hover {
+  background-color: #0069d9;
+}
+
+/* Enrolled courses section */
+
+.enrolled-courses-section {
+  padding: 2rem;
+  border: 1px solid #ccc;
+}
+
+.enrolled-courses-section h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.enrolled-courses-section ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.enrolled-courses-section li {
+  margin-bottom: 1rem;
+}
+
+.enrolled-courses-section a {
+  text-decoration: none;
+  color: #007bff;
+  font-weight: bold;
+}
+
+/* Error messages */
+
+.error-message {
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  background-color: #f00;
+  color: #fff;
+}
+
+
+/* student and teacher dashboard */
+
+body {
+  font-family: sans-serif;
+}
+
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.box {
+  width: 50%;
+  padding: 20px;
+  border: 1px solid #ccc;
+  text-align: center;
+}
+
+.student {
+  background-color: #eee;
+}
+
+.teacher {
+  background-color: #f2f2f2;
+}
+
+.box h1 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.box ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.box ul li {
+  margin-bottom: 10px;
+}
+
+.box ul li a {
+  text-decoration: none;
+  color: #007bff;
+  font-weight: bold;
+}
