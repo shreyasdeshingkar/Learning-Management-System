@@ -25,9 +25,12 @@
             <div class="bg-white p-4 m-4">
                 <h2 class="text-4xl font-semibold m-2 border-b-2 p-3 bg-blue-100"><strong><%= course.courseName %></strong></h2>
                 <p class="text-xl m-2 px-2"><strong>Course ID: <%= course.id %></strong></p>
+                <p class="text-lg m-2 px-2"><strong>Created By: </strong><%= userofCourse.firstName %> <%= userofCourse.lastName %></p>
+                <!-- <p class="text-lg m-2 px-2"><strong>Created On:</strong> <%= course.createdAt.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %></p> -->
+                <p class="text-lg m-2 px-2"><strong>Email: </strong><%= userofCourse.email %></p>
                 
 
-                <p class="text-xl m-2 px-2"><strong>Info:</strong> <%= course.courseInfo %></p>
+                <p class="text-xl m-2 px-2"><strong>Information:</strong> <%= course.courseInfo %></p>
                 <p class="text-xl m-2 px-2">
                     <b>Chapters:</b>
                     <% const isEnrolled = enrols.some(enrollment => enrollment.userId === currentUser.id && enrollment.courseId === course.id); %>

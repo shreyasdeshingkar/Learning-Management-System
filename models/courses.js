@@ -1,7 +1,5 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Courses extends Model {
     /**
@@ -19,13 +17,24 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "courseId",
       });
     }
+
+    static async remove(id) {
+      return this.destroy({
+        where: {
+          id,
+        },
+      });
+    }
   }
-  Courses.init({
-    courseName: DataTypes.STRING,
-    courseInfo: DataTypes.TEXT
-  }, {
-    sequelize,
-    modelName: 'Courses',
-  });
+  Courses.init(
+    {
+      courseName: DataTypes.STRING,
+      courseInfo: DataTypes.TEXT,
+    },
+    {
+      sequelize,
+      modelName: "Courses",
+    },
+  );
   return Courses;
 };

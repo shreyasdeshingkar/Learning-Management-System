@@ -166,7 +166,6 @@ app.post("/users", async (request, response) => {
       email: request.body.email,
       password: hashedPwd,
       role: request.body.role,
-      
     });
     request.login(User, (err) => {
       if (err) {
@@ -182,7 +181,6 @@ app.post("/users", async (request, response) => {
         // Handle other roles or scenarios as needed
         response.redirect("/signup");
       }
-      
     });
   } catch (error) {
     console.log(error);
@@ -207,6 +205,43 @@ app.post(
   },
 );
 
+//forget password
+app.get("/resetpassword", (request, reponse) => {
+  reponse.render("resetPassword", {
+    title: "Reset Password",
+    csrfToken: request.csrfToken(),
+  });
+});
+
+// Route for updating the password
+app.post("/resetpassword", async (request, response) => {
+  const userEmail = request.body.email;
+  const newPassword = request.body.password;
+
+  try {
+    // Find the user by email
+    const user = await Users.findOne({ where: { email: userEmail } });
+
+    if (!user) {
+      request.flash("error", "User with that email does not exist.");
+      return response.redirect("/resetpassword");
+    }
+
+    // Hash the new password
+    const hashedPwd = await bcrypt.hash(newPassword, saltRounds);
+
+    // Update the user's password in the database
+    await user.update({ password: hashedPwd });
+
+    // Redirect to a success page or login page
+    return response.redirect("/login");
+  } catch (error) {
+    console.log(error);
+    request.flash("error", "Error updating the password.");
+    return response.redirect("/resetpassword");
+  }
+});
+
 app.get(
   "/teacher-dashboard",
   connnectEnsureLogin.ensureLoggedIn(),
@@ -218,6 +253,25 @@ app.get(
       const existingCourses = await Courses.findAll();
       const existingUsers = await Users.findAll();
       const existingEnrollments = await Enrollments.findAll();
+
+      // Retrieve courses associated with the user
+      const userCourses = await currentUser.getCourses();
+
+      // Create an array to hold course details including enrollment count
+      const coursesWithEnrollment = [];
+
+      // Loop through each course to fetch enrollment count
+      for (const course of userCourses) {
+        const enrollmentCount = await Enrollments.count({
+          where: { courseId: course.id },
+        });
+
+        coursesWithEnrollment.push({
+          id: course.id,
+          courseName: course.courseName,
+          enrollmentCount: enrollmentCount,
+        });
+      }
 
       // Render the teacher-dashboard page and pass the courses to it
       response.render("teacher-dashboard", {
@@ -283,7 +337,7 @@ app.post(
 );
 
 app.get(
-  "/my-courses",
+  "/teaMyCourses",
   connnectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
     if (!request.isAuthenticated()) {
@@ -304,7 +358,7 @@ app.get(
       const userCourses = await currentUser.getCourses();
 
       // Render the my-courses page and pass the user's courses to it
-      response.render("my-courses", {
+      response.render("teaMyCourses", {
         title: `${currentUser.firstName}'s Courses`,
         courses: userCourses,
         currentUser,
@@ -338,10 +392,62 @@ app.get(
       // Retrieve courses associated with the user
       const userCourses = await currentUser.getCourses();
 
-      // Render the my-courses page and pass the user's courses to it
+      // Create an array to hold course details including enrollment count
+      const coursesWithEnrollment = [];
+
+      // Loop through each course to fetch enrollment count
+      for (const course of userCourses) {
+        const enrollmentCount = await Enrollments.count({
+          where: { courseId: course.id },
+          distinct: true,
+          col: "userId",
+        });
+
+        coursesWithEnrollment.push({
+          id: course.id,
+          courseName: course.courseName,
+          enrollmentCount: enrollmentCount,
+        });
+      }
+
+      // Sort courses based on enrollment count in descending order for knowing popularity
+      const sortedCourses = coursesWithEnrollment.sort(
+        (a, b) => b.enrollmentCount - a.enrollmentCount,
+      );
+
+      const allCourses = await Courses.findAll();
+
+      // Loop through each course to fetch enrollment count
+      const allCoursesWithEnrollment = [];
+      for (const course of allCourses) {
+        const enrollmentCount = await Enrollments.count({
+          where: { courseId: course.id },
+          distinct: true,
+          col: "userId",
+        });
+
+        const userId = course.userId;
+        const userOfCourse = await Users.findByPk(userId);
+
+        allCoursesWithEnrollment.push({
+          id: course.id,
+          userFName: userOfCourse.firstName,
+          userLName: userOfCourse.lastName,
+          courseName: course.courseName,
+          enrollmentCount: enrollmentCount,
+        });
+      }
+
+      // Sort all courses based on enrollment count in descending order for popularity
+      const sortedAllCourses = allCoursesWithEnrollment.sort(
+        (a, b) => b.enrollmentCount - a.enrollmentCount,
+      );
+
+      // Render the viewReport page and pass the user's courses with enrollment count
       response.render("viewReport", {
         title: `${currentUser.firstName}'s Courses Report`,
-        courses: userCourses,
+        courses: sortedCourses,
+        allCourses: sortedAllCourses,
         currentUser,
         csrfToken: request.csrfToken(),
       });
@@ -374,8 +480,9 @@ app.get("/view-course/:id", async (request, response) => {
 
     // console.log(user)
     // Render the course details template and pass the course details and number of students enrolled to it
+
     response.render("course-details", {
-      title: "Course Details",
+      title: `${course.courseName} `,
       course,
       chapters,
       userofCourse,
@@ -427,7 +534,7 @@ app.post(
     }
 
     if (request.body.chapterInfo.length == 0) {
-      request.flash("error", "Description cannot be empty!");
+      request.flash("error", "Information cannot be empty!");
       return response.redirect(
         `/view-course/${request.body.courseId}?currentUserId=${request.query.currentUserId}`,
       );
@@ -469,7 +576,7 @@ app.get(
     const pages = await Pages.findAll({ where: { chapterId } });
 
     response.render("createPage", {
-      title: "Create New Page",
+      title: " New Page",
       chapterId,
       chapter,
       pages,
@@ -477,6 +584,40 @@ app.get(
       userOfCourse,
       enrols: existingEnrollments,
       currentUser,
+      csrfToken: request.csrfToken(),
+    });
+  },
+);
+
+//route for onlyy enrolled students
+app.get(
+  "/view-chapter/:id/viewpage",
+  connnectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    const chapterId = request.params.id;
+    const chapter = await Chapters.findByPk(chapterId);
+    const courseId = chapter.courseId;
+    const course = await Courses.findByPk(courseId);
+    const userOfCourseId = course.userId;
+    const userOfCourse = await Users.findByPk(userOfCourseId);
+    const existingEnrollments = await Enrollments.findAll();
+
+    const currentUserId = request.query.currentUserId;
+    const currentUser = await Users.findByPk(decodeURIComponent(currentUserId));
+    const currentPageIndex = request.query.currentPageIndex || 0; // Get currentPageIndex from the query parameter or set it to 0 by default
+
+    const pages = await Pages.findAll({ where: { chapterId } });
+
+    response.render("enrolledStuViewPage", {
+      title: "Pages",
+      chapterId,
+      chapter,
+      pages,
+      course,
+      userOfCourse,
+      enrols: existingEnrollments,
+      currentUser,
+      currentPageIndex,
       csrfToken: request.csrfToken(),
     });
   },
@@ -536,7 +677,7 @@ app.get(
 
       // Render the teacher-dashboard page and pass the courses to it
       response.render("student-dashboard", {
-        title: "Student Dashboard",
+        title: `Student ${currentUser.firstName} Dashboard`,
         courses: existingCourses,
         users: existingUsers,
         enrols: existingEnrollments,
@@ -572,11 +713,10 @@ app.post(
     }
 
     // Record the enrollment in the Enrollments model
+    // Record the enrollment in the Enrollments model
     await Enrollments.create({
       userId: currentUserId,
       courseId,
-      noOfChapCompleted: 0,
-      totChapInTheCourse: 0,
     });
 
     response.redirect("/student-dashboard");
@@ -585,7 +725,7 @@ app.post(
 
 //route to display enrolled courses by the student
 app.get(
-  "/MyCourses",
+  "/stuMyCourses",
   connnectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
     const currentUser = request.user;
@@ -596,16 +736,62 @@ app.get(
         where: { userId: currentUser.id },
       });
 
-      // Fetch information about these courses from the Courses model
-      const courseIds = enrolledCourses.map(
-        (enrollment) => enrollment.courseId,
-      );
-      const courses = await Courses.findAll({ where: { id: courseIds } });
+      const coursesWithPageInfo = [];
+
+      for (const enrollment of enrolledCourses) {
+        // Fetch the course associated with the enrollment
+        const course = await Courses.findByPk(enrollment.courseId, {
+          include: [
+            {
+              model: Chapters,
+              include: [Pages],
+            },
+          ],
+        });
+
+        // Check if the course is retrieved
+        if (course) {
+          // Check if the course is already in the array
+          const existingCourse = coursesWithPageInfo.find(
+            (c) => c.courseId === course.id,
+          );
+
+          if (!existingCourse) {
+            // Calculate the total number of pages for the course
+            const totalPages = course.Chapters.reduce(
+              (total, chapter) => total + chapter.Pages.length,
+              0,
+            );
+
+            // Fetch the count of completed pages for the user in this course
+            const donePagesCount = await Enrollments.count({
+              where: {
+                courseId: course.id,
+                userId: currentUser.id,
+                completed: true,
+              },
+            });
+
+            coursesWithPageInfo.push({
+              userId: course.userId,
+              courseId: course.id,
+              courseName: course.courseName,
+              donePagesCount: donePagesCount,
+              totalPages: totalPages,
+            });
+          }
+        }
+      }
+
+      console.log(coursesWithPageInfo);
+
+      const existingUsers = await Users.findAll();
 
       // Render the stuMyCourses page and pass the enrolled courses to it
       response.render("stuMyCourses", {
         title: `${currentUser.firstName}'s Enrolled Courses`,
-        courses: courses,
+        courses: coursesWithPageInfo,
+        users: existingUsers,
         currentUser,
         csrfToken: request.csrfToken(),
       });
@@ -615,6 +801,45 @@ app.get(
     }
   },
 );
+
+//mark page as complete
+app.post("/mark-as-complete", async (request, response) => {
+  try {
+    const userId = request.body.userId;
+    const courseId = request.body.courseId;
+    const chapterId = request.body.chapterId;
+    var pageId = parseInt(request.body.pageId) + 1;
+
+    console.log(userId);
+    console.log(courseId);
+    console.log(chapterId);
+    console.log(pageId);
+    await Enrollments.create({
+      userId,
+      courseId,
+      chapterId,
+      pageId,
+      completed: true,
+    });
+
+    if (pageId === 1) {
+      response.redirect(
+        `/view-chapter/${chapterId}/viewpage?currentUserId=${userId}`,
+      );
+    } else {
+      response.redirect(
+        `/view-chapter/${chapterId}/viewpage?currentUserId=${userId}&currentPageIndex=${
+          pageId - 1
+        }`,
+      );
+    }
+  } catch (error) {
+    console.error("Error marking page as complete", error);
+    response
+      .status(500)
+      .send("An error occurred while marking the page as complete");
+  }
+});
 
 //change password routes
 app.get("/changePassword", (request, reponse) => {
@@ -655,18 +880,33 @@ app.post("/changePassword", async (request, response) => {
   }
 });
 
-//delete a course - not working for now
+// DELETE a course
 app.delete(
   "/courses/:id",
   connnectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
-    // const loggedInUser = request.user.id;
-    console.log("We have to delete a course with ID: ", request.params.id);
+    const courseId = request.params.id;
+
+    console.log("We have to delete a course with ID: ", courseId);
 
     try {
-      const status = await Courses.remove(request.params.id);
+      // Find all chapters associated with the course
+      const chapters = await Chapters.findAll({ where: { courseId } });
+
+      // Delete all pages associated with the chapters
+      for (const chapter of chapters) {
+        await Pages.destroy({ where: { chapterId: chapter.id } });
+      }
+
+      // Delete all chapters associated with the course
+      await Chapters.destroy({ where: { courseId } });
+
+      // Delete the course
+      const status = await Courses.remove(courseId);
+
       return response.json(status ? true : false);
     } catch (err) {
+      console.error(err);
       return response.status(422).json(err);
     }
   },
