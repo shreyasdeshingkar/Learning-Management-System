@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /*eslint-disable no-undef */
 const express = require("express");
 const app = express();
@@ -432,7 +433,7 @@ app.get(
         allCoursesWithEnrollment.push({
           id: course.id,
           // userFName: userOfCourse.firstName,
-          userLName: userOfCourse.lastName,
+          // userLName: userOfCourse.lastName,
           courseName: course.courseName,
           enrollmentCount: enrollmentCount,
         });
