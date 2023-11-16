@@ -17,22 +17,18 @@
 //     console.error("Unable to connect to the database:", error);
 //   });
 
-
 const Sequelize = require("sequelize");
-const sequelize = new Sequelize('lms_dev', 'postgres', 'Shreyas@123', {
+const sequelize = new Sequelize("lms_dev", "postgres", "Shreyas@123", {
   host: "localhost",
   dialect: "postgres",
-  logging:false,
+  logging: false,
 });
 
 const connect = async () => {
   return sequelize.authenticate();
-}
+};
 
 module.exports = {
   connect,
-  sequelize
-}
-
-
-  
+  sequelize,
+};

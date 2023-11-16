@@ -1,4 +1,5 @@
-const port = process.env.PORT || 3001; 
+/* eslint-disable no-undef */
+const port = process.env.PORT || 3001;
 
 const app = require("./app");
 

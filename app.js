@@ -431,7 +431,7 @@ app.get(
 
         allCoursesWithEnrollment.push({
           id: course.id,
-          userFName: userOfCourse.firstName,
+          // userFName: userOfCourse.firstName,
           userLName: userOfCourse.lastName,
           courseName: course.courseName,
           enrollmentCount: enrollmentCount,
@@ -872,7 +872,11 @@ app.post("/changePassword", async (request, response) => {
     await user.update({ password: hashedPwd });
 
     // Redirect to a success page or login page
-    return response.redirect("/login");
+    if (user.role === "teacher") {
+      return response.redirect("/teacher-dashboard");
+    } else if (user.role === "student") {
+      return response.redirect("/student-dashboard");
+    }
   } catch (error) {
     console.log(error);
     request.flash("error", "Error updating the password.");
